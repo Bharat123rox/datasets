@@ -112,7 +112,7 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
                     ),
                     "action": datasets.features.Sequence(
                         {
-                            "status": datasets.features.ClassLabel(names=["book", "no_flight", "change", "no_reservation", "cancel"]),
+                            "status": datasets.features.ClassLabel(names=["book", "no_flight", "change", "no_reservation", "cancel", "NONE"]),
                             "name": datasets.Value("string"),
                             "flight": datasets.Sequence(datasets.Value("int32"))
                         }
@@ -126,7 +126,7 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
                             "departure_time": datasets.Value("string"),
                             "max_connections": datasets.features.ClassLabel(names=["0", "1", "many"]),
                             "departure_day": datasets.Value("string"),
-                            "goal": datasets.features.ClassLabel(names=["book", "change", "cancel"]),
+                            "goal": datasets.features.ClassLabel(names=["book", "change", "cancel", "NONE"]),
                             "departure_month": datasets.Value("string"),
                             "name": datasets.Value("string"),
                             "return_airport": datasets.Value("string")
@@ -136,7 +136,7 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
                     "dialogue": datasets.Sequence(datasets.Value("string")),
                     "expected_action": datasets.features.Sequence(
                         {
-                            "status": datasets.features.ClassLabel(names=["book", "no_flight", "change", "no_reservation", "cancel"]),
+                            "status": datasets.features.ClassLabel(names=["book", "no_flight", "change", "no_reservation", "cancel", "NONE"]),
                             "name": datasets.Value("string"),
                             "flight": datasets.Sequence(datasets.Value("int32"))
                         }
@@ -219,7 +219,7 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
                         yield id_, {
                             "search_info": calculated_search_info,
                             "action": {
-                                "status": data["action"].get("status", "book"),
+                                "status": data["action"].get("status", "NONE"),
                                 "name": data["action"].get("name", ""),
                                 "flight": data["action"].get("flight", [])
                             },
@@ -231,7 +231,7 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
                                 "departure_time": data["intent"].get("departure_time", ""),
                                 "max_connections": data["intent"].get("max_connections", ""),
                                 "departure_day": data["intent"].get("departure_day", ""),
-                                "goal": data["intent"].get("goal", ""),
+                                "goal": data["intent"].get("goal", "NONE"),
                                 "departure_month": data["intent"].get("departure_month", ""),
                                 "name": data["intent"].get("name", ""),
                                 "return_airport": data["intent"].get("return_airport", "")
@@ -239,7 +239,7 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
                             "timestamps": data["timestamps"],
                             "dialogue": data["dialogue"],
                             "expected_action": {
-                                "status": data["expected_action"].get("status", "book"),
+                                "status": data["expected_action"].get("status", "NONE"),
                                 "name": data["expected_action"].get("name", ""),
                                 "flight": data["expected_action"].get("flight", [])
                             },
