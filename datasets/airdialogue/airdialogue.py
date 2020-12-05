@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""TODO: Add a description here."""
+"""AirDialogue is a benchmark dataset for goal-oriented dialogue generation research."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -104,21 +104,18 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
                 {
                     "search_info": datasets.features.Sequence(
                         {
-                            "timestmamp": datasets.Value("int32"),
+                            "timestmamp": datasets.Value("int64"),
                             "button_name": datasets.Value("string"),
                             "field_name": datasets.Value("string"),
                             "field_value": datasets.Value("string")
                         }
                     ),
-                    "action": datasets.features.Sequence(
-                        {
+                    "action": {
                             "status": datasets.features.ClassLabel(names=["book", "no_flight", "change", "no_reservation", "cancel", "NONE"]),
                             "name": datasets.Value("string"),
                             "flight": datasets.Sequence(datasets.Value("int32"))
-                        }
-                    ),
-                    "intent": datasets.features.Sequence(
-                        {
+                    },
+                    "intent": {
                             "return_month": datasets.Value("string"),
                             "return_day": datasets.Value("int32"),
                             "max_price": datasets.Value("int32"),
@@ -130,18 +127,15 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
                             "departure_month": datasets.Value("string"),
                             "name": datasets.Value("string"),
                             "return_airport": datasets.Value("string")
-                        }
-                    ),
-                    "timestamps": datasets.Sequence(datasets.Value("int32")),
+                    },
+                    "timestamps": datasets.Sequence(datasets.Value("int64")),
                     "dialogue": datasets.Sequence(datasets.Value("string")),
-                    "expected_action": datasets.features.Sequence(
-                        {
+                    "expected_action": {
                             "status": datasets.features.ClassLabel(names=["book", "no_flight", "change", "no_reservation", "cancel", "NONE"]),
                             "name": datasets.Value("string"),
                             "flight": datasets.Sequence(datasets.Value("int32"))
-                        }
-                    ),
-                    "correct_sample": datasets.Value("bool_")
+                    },
+                    "correct_sample": datasets.Value("bool")
                 }
             )
         return datasets.DatasetInfo(
@@ -152,7 +146,7 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
             # If there's a common (input, target) tuple from the features,
             # specify them here. They'll be used if as_supervised=True in
             # builder.as_dataset.
-            supervised_keys=("dialogue", "expected_action") if self.config.name == "kb" else None,
+            supervised_keys=("dialogue", "expected_action") if self.config.name == "data" else None,
             # Homepage of the dataset for documentation
             homepage=_HOMEPAGE,
             # License for the dataset if available
@@ -180,7 +174,7 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
                 # These kwargs will be passed to _generate_examples
                 gen_kwargs={
                     "filepath": os.path.join(data_dir, TRAIN.format(config=self.config.name)),
-                    "split": "train",
+                    "split": "train"
                 },
             ),
             datasets.SplitGenerator(
@@ -188,7 +182,7 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
                 # These kwargs will be passed to _generate_examples
                 gen_kwargs={
                     "filepath": os.path.join(data_dir, DEV.format(config=self.config.name)),
-                    "split": "dev",
+                    "split": "dev"
                 },
             ),
         ]
@@ -209,12 +203,17 @@ class AirDialogue(datasets.GeneratorBasedBuilder):
                     if "search_info" in data:
                         calculated_search_info = []
                         for item in data["search_info"]:
-                            calculated_search_info.append({
-                                "timestmamp": item["timestmamp"],
-                                "button_name": item.get("button_name", ""),
-                                "field_name": item.get("field_name", ""),
-                                "field_value": item.get("field_value", "")
-                            })
+                            if "button_name" in item:
+                                calculated_search_info.append({
+                                    "timestmamp": item["timestmamp"],
+                                    "button_name": item.get("button_name", ""),
+                                })
+                            else:
+                                calculated_search_info.append({
+                                    "timestmamp": item["timestmamp"],
+                                    "field_name": item.get("field_name",""),
+                                    "field_value": item.get("field_value","")
+                                })
                     if data["correct_sample"]:
                         yield id_, {
                             "search_info": calculated_search_info,
